@@ -16,6 +16,6 @@
         <tags>Windows Forms</tags>
     </metadata>
     <files>
-        <file src="..\Project\Library\bin\Release\SharpLibForms.dll" target="lib\net461\SharpLibForms.dll" />
+        <file src="..\Project\bin\Release\SharpLibForms.dll" target="lib\net461\SharpLibForms.dll" />
     </files>
 </package>
