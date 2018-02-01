@@ -37,8 +37,7 @@ namespace SharpLib.Forms
 		{
 			this.wParam = wParam;
 			this.lParam = lParam;
-			cw = new Win32.CWPRETSTRUCT();
-			Marshal.PtrToStructure(lParam, cw);
+			cw = (Win32.CWPRETSTRUCT)Marshal.PtrToStructure(lParam, typeof(Win32.CWPRETSTRUCT));
 		}
 	}
 
