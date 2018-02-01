@@ -18,8 +18,7 @@ using System.Runtime.InteropServices;
 
 namespace SharpLib.Forms
 {
-	///////////////////////////////////////////////////////////////////////
-	#region Class HookEventArgs
+
 
 	/// Class used for hook event arguments.
 	public class HookEventArgs : EventArgs
@@ -39,64 +38,16 @@ namespace SharpLib.Forms
 		}
 	}
 	
-	#endregion
-
-	///////////////////////////////////////////////////////////////////////
-	#region Enum HookType
-
-	/// Hook Types.
-	public enum HookType : int
-	{
-		/// <value>0</value>
-		WH_JOURNALRECORD = 0,
-		/// <value>1</value>
-		WH_JOURNALPLAYBACK = 1,
-		/// <value>2</value>
-		WH_KEYBOARD = 2,
-		/// <value>3</value>
-		WH_GETMESSAGE = 3,
-		/// <value>4</value>
-		WH_CALLWNDPROC = 4,
-		/// <value>5</value>
-		WH_CBT = 5,
-		/// <value>6</value>
-		WH_SYSMSGFILTER = 6,
-		/// <value>7</value>
-		WH_MOUSE = 7,
-		/// <value>8</value>
-		WH_HARDWARE = 8,
-		/// <value>9</value>
-		WH_DEBUG = 9,
-		/// <value>10</value>
-		WH_SHELL = 10,
-		/// <value>11</value>
-		WH_FOREGROUNDIDLE = 11,
-		/// <value>12</value>
-		WH_CALLWNDPROCRET = 12,		
-		/// <value>13</value>
-		WH_KEYBOARD_LL = 13,
-		/// <value>14</value>
-		WH_MOUSE_LL = 14
-	}
-	#endregion
-
-	///////////////////////////////////////////////////////////////////////
-	#region Class WindowsHook
 
 	/// <summary>
 	/// Class to expose the windows hook mechanism.
 	/// </summary>
 	public class WindowsHook
 	{
-		/// <summary>
-		/// Hook delegate method.
-		/// </summary>
-		public delegate int HookProc(int code, IntPtr wParam, IntPtr lParam);
-
 		// internal properties
 		internal IntPtr hHook = IntPtr.Zero;
-		internal HookProc filterFunc = null;
-		internal HookType hookType;
+		internal Win32.HOOKPROC filterFunc = null;
+		internal Win32.HookType hookType;
 
 		/// <summary>
 		/// Hook delegate method.
@@ -118,17 +69,17 @@ namespace SharpLib.Forms
 		/// Construct a HookType hook.
 		/// </summary>
 		/// <param name="hook">Hook type.</param>
-		public WindowsHook(HookType hook)
+		public WindowsHook(Win32.HookType hook)
 		{
 			hookType = hook;
-			filterFunc = new HookProc(this.CoreHookProc);
+			filterFunc = new Win32.HOOKPROC(this.CoreHookProc);
 		}
 		/// <summary>
 		/// Construct a HookType hook giving a hook filter delegate method.
 		/// </summary>
 		/// <param name="hook">Hook type</param>
 		/// <param name="func">Hook filter event.</param>
-		public WindowsHook(HookType hook, HookProc func)
+		public WindowsHook(Win32.HookType hook, Win32.HOOKPROC func)
 		{
 			hookType = hook;
 			filterFunc = func; 
@@ -138,14 +89,14 @@ namespace SharpLib.Forms
 		internal int CoreHookProc(int code, IntPtr wParam, IntPtr lParam)
 		{
 			if (code < 0)
-				return CallNextHookEx(hHook, code, wParam, lParam);
+				return Win32.Function.CallNextHookEx(hHook, code, wParam, lParam);
 
 			// let clients determine what to do
 			HookEventArgs e = new HookEventArgs(code, wParam, lParam);
 			OnHookInvoke(e);
 
 			// yield to the next hook in the chain
-			return CallNextHookEx(hHook, code, wParam, lParam);
+			return Win32.Function.CallNextHookEx(hHook, code, wParam, lParam);
 		}
 
 		/// <summary>
@@ -153,7 +104,7 @@ namespace SharpLib.Forms
 		/// </summary>
 		public void Install()
 		{
-			hHook = SetWindowsHookEx(hookType, filterFunc, IntPtr.Zero, (int)AppDomain.GetCurrentThreadId());
+			hHook = Win32.Function.SetWindowsHookEx(hookType, filterFunc, IntPtr.Zero, (int)AppDomain.GetCurrentThreadId());
 		}
 
 		
@@ -164,23 +115,11 @@ namespace SharpLib.Forms
 		{
 			if (hHook != IntPtr.Zero)
 			{
-				UnhookWindowsHookEx(hHook);
+				Win32.Function.UnhookWindowsHookEx(hHook);
 				hHook = IntPtr.Zero;
 			}
 		}
 
-		#region Win32 Imports
 
-		[DllImport("user32.dll")]
-		internal static extern IntPtr SetWindowsHookEx(HookType code, HookProc func, IntPtr hInstance, int threadID);
-
-		[DllImport("user32.dll")]
-		internal static extern int UnhookWindowsHookEx(IntPtr hhook); 
-
-		[DllImport("user32.dll")]
-		internal static extern int CallNextHookEx(IntPtr hhook, int code, IntPtr wParam, IntPtr lParam);
-
-		#endregion
 	}
-	#endregion
 }

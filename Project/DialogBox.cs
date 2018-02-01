@@ -27,8 +27,6 @@ using System.Diagnostics;
 
 namespace SharpLib.Forms
 {
-	///////////////////////////////////////////////////////////////////////
-	#region DlgBox
 
 	/// <summary>
 	/// Class to display a CommonDialog or modal Form centered on the owner.
@@ -98,10 +96,6 @@ namespace SharpLib.Forms
 		}
 	}
 
-	#endregion
-
-	///////////////////////////////////////////////////////////////////////
-	#region MsgBox
 
 	/// <summary>
 	/// Class to display a MessageBox centered on the owner.
@@ -278,10 +272,6 @@ namespace SharpLib.Forms
 		}
 	}
 
-	#endregion
-
-	///////////////////////////////////////////////////////////////////////
-	#region AppBox
 
 	/// <summary>
 	/// Class to display a MessageBox centered on the owner.
@@ -441,10 +431,6 @@ namespace SharpLib.Forms
 		}
 	}
 
-	#endregion
-
-	///////////////////////////////////////////////////////////////////////
-	#region ErrBox
 
 	/// <summary>
 	/// Class to display application error MessageBox centered on the owner.
@@ -516,11 +502,9 @@ namespace SharpLib.Forms
 		}
 	}
 
-	#endregion
-
-	///////////////////////////////////////////////////////////////////////
-	#region CenterWindow class
-
+    /// <summary>
+    /// 
+    /// </summary>
 	internal sealed class CenterWindow
 	{
 		public IntPtr hOwner = IntPtr.Zero;
@@ -551,24 +535,48 @@ namespace SharpLib.Forms
 			}
 		}
 
-		public void WndActivate(object sender, CbtEventArgs e)
+        /// <summary>
+        /// Get true multiscreen size.
+        /// </summary>
+        public static Rectangle TrueScreenRect
+        {
+            get
+            {
+                // get the biggest screen area
+                Rectangle rectScreen = Screen.PrimaryScreen.WorkingArea;
+                int left = rectScreen.Left;
+                int top = rectScreen.Top;
+                int right = rectScreen.Right;
+                int bottom = rectScreen.Bottom;
+                foreach (Screen screen in Screen.AllScreens)
+                {
+                    left = Math.Min(left, screen.WorkingArea.Left);
+                    right = Math.Max(right, screen.WorkingArea.Right);
+                    top = Math.Min(top, screen.WorkingArea.Top);
+                    bottom = Math.Max(bottom, screen.WorkingArea.Bottom);
+                }
+                return new Rectangle(left, top, right - left, bottom - top);
+            }
+        }
+
+        public void WndActivate(object sender, CbtEventArgs e)
 		{
 			IntPtr hMsgBox = e.wParam;
 
 			// try to find a howner for this message box
 			if (hOwner == IntPtr.Zero)
-				hOwner = USER32.GetActiveWindow();
+				hOwner = Win32.Function.GetActiveWindow();
 
 			// get the MessageBox window rect
-			RECT rectDlg = new RECT();
-			USER32.GetWindowRect(hMsgBox, ref rectDlg);
+			Win32.RECT rectDlg = new Win32.RECT();
+            Win32.Function.GetWindowRect(hMsgBox, ref rectDlg);
 
 			// get the owner window rect
-			RECT rectForm = new RECT();
-			USER32.GetWindowRect(hOwner, ref rectForm);
+			Win32.RECT rectForm = new Win32.RECT();
+            Win32.Function.GetWindowRect(hOwner, ref rectForm);
 
 			// get the biggest screen area
-			Rectangle rectScreen = API.TrueScreenRect;
+			Rectangle rectScreen = TrueScreenRect;
 
 			// if no parent window, center on the primary screen
 			if (rectForm.right == rectForm.left)
@@ -600,7 +608,7 @@ namespace SharpLib.Forms
 				wndProcRetHook.Install();
 			}
 			else
-				USER32.MoveWindow(hMsgBox, rect.Left, rect.Top, rect.Width, rect.Height, 1);
+                Win32.Function.MoveWindow(hMsgBox, rect.Left, rect.Top, rect.Width, rect.Height, 1);
 
 			// uninstall this hook
 			WindowsHook wndHook = (WindowsHook)sender;
@@ -611,10 +619,10 @@ namespace SharpLib.Forms
 
 		public void WndProcRet(object sender, WndProcRetEventArgs e)
 		{
-			if (e.cw.message == WndMessage.WM_INITDIALOG ||
-				e.cw.message == WndMessage.WM_UNKNOWINIT)
+			if (e.cw.message == Win32.Const.WM_INITDIALOG ||
+				e.cw.message == Win32.Const.WM_CHANGEUISTATE)
 			{
-				USER32.MoveWindow(e.cw.hwnd, rect.Left, rect.Top, rect.Width, rect.Height, 1);
+                Win32.Function.MoveWindow(e.cw.hWnd, rect.Left, rect.Top, rect.Width, rect.Height, 1);
 				
 				// uninstall this hook
 				WindowsHook wndHook = (WindowsHook)sender;
@@ -624,5 +632,5 @@ namespace SharpLib.Forms
 			}
 		}
 	}
-	#endregion
+	
 }

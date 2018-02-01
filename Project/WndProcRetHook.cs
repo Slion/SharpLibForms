@@ -21,23 +21,7 @@ using System.Diagnostics;
 
 namespace SharpLib.Forms
 {
-	///////////////////////////////////////////////////////////////////////
-	#region Enum WndMessage
 
-	/// <summary>
-	/// windows message.
-	/// </summary>
-	public enum WndMessage : int
-	{
-		/// Sent to the dialog procedure immediately before the dialog is displayed.
-		WM_INITDIALOG = 0x0110,
-		/// Sent to the dialog procedure immediately before the dialog is displayed.
-		WM_UNKNOWINIT = 0x0127
-	}
-	#endregion
-
-	///////////////////////////////////////////////////////////////////////
-	#region Class WndProcRetEventArgs
 
 	/// Class used for WH_CALLWNDPROCRET hook event arguments.
 	public class WndProcRetEventArgs : EventArgs
@@ -47,39 +31,17 @@ namespace SharpLib.Forms
 		/// lParam parameter.
 		public IntPtr lParam;
 		/// CWPRETSTRUCT structure.
-		public CwPRetStruct cw;
+		public Win32.CWPRETSTRUCT cw;
 
 		internal WndProcRetEventArgs(IntPtr wParam, IntPtr lParam)
 		{
 			this.wParam = wParam;
 			this.lParam = lParam;
-			cw = new CwPRetStruct();
+			cw = new Win32.CWPRETSTRUCT();
 			Marshal.PtrToStructure(lParam, cw);
 		}
 	}
 
-	/// <summary>
-	/// CWPRETSTRUCT structure.
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
-	public class CwPRetStruct
-	{
-		/// Return value.
-		public int lResult;
-		/// lParam parameter.
-		public int lParam;
-		/// wParam parameter.
-		public int wParam;
-		/// Specifies the message.
-		public WndMessage message;
-		/// Handle to the window that processed the message.
-		public IntPtr hwnd;
-	}
-
-	#endregion
-
-	///////////////////////////////////////////////////////////////////////
-	#region Class WndProcRetHook
 	
 	/// <summary>
 	/// Class to expose the windows WH_CALLWNDPROCRET hook mechanism.
@@ -104,7 +66,7 @@ namespace SharpLib.Forms
 		/// <param name="hWndHooked">
 		/// Handle of the window to be hooked. IntPtr.Zero to hook all window.
 		/// </param>
-		public WndProcRetHook(IntPtr hWndHooked) : base(HookType.WH_CALLWNDPROCRET)
+		public WndProcRetHook(IntPtr hWndHooked) : base(Win32.HookType.WH_CALLWNDPROCRET)
 		{
 			this.hWndHooked = hWndHooked;
 			this.HookInvoke += new HookEventHandler(WndProcRetHookInvoked);
@@ -116,7 +78,7 @@ namespace SharpLib.Forms
 		/// Handle of the window to be hooked. IntPtr.Zero to hook all window.
 		/// </param>
 		/// <param name="func">Hook filter event.</param>
-		public WndProcRetHook(IntPtr hWndHooked, HookProc func) : base(HookType.WH_CALLWNDPROCRET, func)
+		public WndProcRetHook(IntPtr hWndHooked, Win32.HOOKPROC func) : base(Win32.HookType.WH_CALLWNDPROCRET, func)
 		{
 			this.hWndHooked = hWndHooked;
 			this.HookInvoke += new HookEventHandler(WndProcRetHookInvoked);
@@ -126,10 +88,10 @@ namespace SharpLib.Forms
 		private void WndProcRetHookInvoked(object sender, HookEventArgs e)
 		{
 			WndProcRetEventArgs wpe = new WndProcRetEventArgs(e.wParam, e.lParam);
-			if ((hWndHooked == IntPtr.Zero || wpe.cw.hwnd == hWndHooked) && WndProcRet != null)
+			if ((hWndHooked == IntPtr.Zero || wpe.cw.hWnd == hWndHooked) && WndProcRet != null)
 				WndProcRet(this, wpe);
 			return;
 		}
 	}
-	#endregion
+
 }

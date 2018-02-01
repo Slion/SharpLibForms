@@ -20,30 +20,6 @@ using System.Runtime.InteropServices;
 
 namespace SharpLib.Forms
 {
-	///////////////////////////////////////////////////////////////////////
-	#region Enum CbtHookAction
-
-	/// <summary>
-	/// CBT hook actions.
-	/// </summary>
-	internal enum CbtHookAction : int
-	{
-		HCBT_MOVESIZE = 0,
-		HCBT_MINMAX = 1,
-		HCBT_QS = 2,
-		HCBT_CREATEWND = 3,
-		HCBT_DESTROYWND = 4,
-		HCBT_ACTIVATE = 5,
-		HCBT_CLICKSKIPPED = 6,
-		HCBT_KEYSKIPPED = 7,
-		HCBT_SYSCOMMAND = 8,
-		HCBT_SETFOCUS = 9
-	}
-
-	#endregion
-
-	///////////////////////////////////////////////////////////////////////
-	#region Class CbtEventArgs
 
 	/// <summary>
 	/// Class used for WH_CBT hook event arguments.
@@ -68,16 +44,11 @@ namespace SharpLib.Forms
 			// cache the window's class name
 			StringBuilder sb = new StringBuilder();
 			sb.Capacity = 256;
-			USER32.GetClassName(wParam, sb, 256);
+			Win32.Function.GetClassName(wParam, sb, 256);
 			className = sb.ToString();
 			IsDialog = (className == "#32770");
 		}
 	}
-
-	#endregion
-
-	///////////////////////////////////////////////////////////////////////
-	#region Class CbtHook
 	
 	/// <summary>
 	/// Class to expose the windows WH_CBT hook mechanism.
@@ -105,7 +76,7 @@ namespace SharpLib.Forms
 		/// <summary>
 		/// Construct a WH_CBT hook.
 		/// </summary>
-		public CbtHook() : base(HookType.WH_CBT)
+		public CbtHook() : base(Win32.HookType.WH_CBT)
 		{
 			this.HookInvoke += new HookEventHandler(CbtHookInvoked);
 		}
@@ -113,7 +84,7 @@ namespace SharpLib.Forms
 		/// Construct a WH_CBT hook giving a hook filter delegate method.
 		/// </summary>
 		/// <param name="func">Hook filter event.</param>
-		public CbtHook(HookProc func) : base(HookType.WH_CBT, func)
+		public CbtHook(Win32.HOOKPROC func) : base(Win32.HookType.WH_CBT, func)
 		{
 			this.HookInvoke += new HookEventHandler(CbtHookInvoked);
 		}
@@ -122,15 +93,15 @@ namespace SharpLib.Forms
 		private void CbtHookInvoked(object sender, HookEventArgs e)
 		{
 			// handle hook events (only a few of available actions)
-			switch ((CbtHookAction)e.code)
+			switch (e.code)
 			{
-				case CbtHookAction.HCBT_CREATEWND:
+				case Win32.Const.HCBT_CREATEWND:
 					HandleCreateWndEvent(e.wParam, e.lParam);
 					break;
-				case CbtHookAction.HCBT_DESTROYWND:
+				case Win32.Const.HCBT_DESTROYWND:
 					HandleDestroyWndEvent(e.wParam, e.lParam);
 					break;
-				case CbtHookAction.HCBT_ACTIVATE:
+				case Win32.Const.HCBT_ACTIVATE:
 					HandleActivateEvent(e.wParam, e.lParam);
 					break;
 			}
@@ -167,5 +138,4 @@ namespace SharpLib.Forms
 			}
 		}
 	}
-	#endregion
 }

@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>SharpLibForms</id>
-        <version>0.0.1</version>
+        <version>0.0.2</version>
         <title>Windows Forms Extensions .NET Library</title>
         <authors>Stéphane Lenclud</authors>
         <owners>Stéphane Lenclud</owners>
@@ -10,12 +10,18 @@
         <projectUrl>https://github.com/Slion/SharpLibForms</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Class library extending Windows Forms functionalities.</description>
-        <releaseNotes />
+        <releaseNotes>v0.0.2
+Adding dependency on SharpLibWin32</releaseNotes>
         <copyright>Stéphane Lenclud</copyright>
         <language />
         <tags>Windows Forms</tags>
+        <dependencies>
+            <group targetFramework=".NETFramework4.0">
+                <dependency id="SharpLibWin32" version="0.1.5" />
+            </group>
+        </dependencies>
     </metadata>
     <files>
-        <file src="..\Project\bin\Release\SharpLibForms.dll" target="lib\net461\SharpLibForms.dll" />
+        <file src="..\Project\bin\Release\SharpLibForms.dll" target="lib\net40\SharpLibForms.dll" />
     </files>
 </package>
