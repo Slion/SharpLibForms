@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>SharpLibForms</id>
-        <version>0.0.3</version>
+        <version>0.0.4</version>
         <title>Windows Forms Extensions .NET Library</title>
         <authors>Stéphane Lenclud</authors>
         <owners>Stéphane Lenclud</owners>
@@ -10,8 +10,11 @@
         <projectUrl>https://github.com/Slion/SharpLibForms</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Class library extending Windows Forms functionalities.</description>
-        <releaseNotes>v0.0.3
-Fixing exception and adding Demo project.           
+        <releaseNotes>v0.0.4
+Upgrade SharpLibWin32 to v0.2.1.
+
+v0.0.3
+Fixing exception and adding Demo project.
 
 v0.0.2
 Adding dependency on SharpLibWin32</releaseNotes>
